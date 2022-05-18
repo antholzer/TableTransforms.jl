@@ -33,20 +33,20 @@ end
 
 Scale(; low=0.25, high=0.75) = Scale(low, high)
 
-assertions(::Type{Scale{T}}) where {T} = [assert_continuous]
+assertions(::Type{<:Scale}) = [assert_continuous]
 
-isrevertible(::Type{Scale{T}}) where {T} = true
+isrevertible(::Type{<:Scale}) = true
 
-function colcache(transform::Scale{T}, x) where {T}
+function colcache(transform::Scale, x)
   levels = (transform.low, transform.high)
   xl, xh = quantile(x, levels)
   xl == xh && ((xl, xh) = (zero(xl), one(xh)))
   (xl=xl, xh=xh)
 end
 
-colapply(::Scale{T}, x, c) where{T}  = @. (x - c.xl) / (c.xh - c.xl)
+colapply(::Scale, x, c)  = @. (x - c.xl) / (c.xh - c.xl)
 
-colrevert(::Scale{T}, y, c) where{T} = @. (c.xh - c.xl) * y + c.xl
+colrevert(::Scale, y, c) = @. (c.xh - c.xl) * y + c.xl
 
 """
     MinMax()

@@ -951,12 +951,14 @@
 
   @testset "Scale" begin
     # constant column
-    x = fill(3.0, 10)
+    x = fill(Float64(3.0), 10)
     y = rand(10)
-    t = Table(; x, y)
+    t = Table(; x=x, y=y, xf32=Float32.(x), xf16=Float16.(x))
     T = MinMax()
     n, c = apply(T, t)
-    @test n.x == x
+    for (c, CT) in zip([:x, :xf32, :xf16], [Float64, Float32, Float16])
+      @test Tables.getcolumn(n, c) == CT.(x) && Tables.columntype(n, c) == CT
+    end
     @test n.y != y
     tₒ = revert(T, n, c)
     @test Tables.matrix(t) ≈ Tables.matrix(tₒ)

@@ -998,7 +998,7 @@
         n, c = apply(T, t)
         @test Tables.columntype(t, :x) == Tables.columntype(n, :x)
         tₒ = revert(T, n, c)
-        @test Tables.columntype(t, :x) == Tables.columntype(t, :x)
+        @test Tables.columntype(t, :x) == Tables.columntype(tₒ, :x)
       end
     end
   end

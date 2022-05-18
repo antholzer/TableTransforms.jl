@@ -951,14 +951,12 @@
 
   @testset "Scale" begin
     # constant column
-    x = fill(Float64(3.0), 10)
+    x = fill(3.0, 10)
     y = rand(10)
-    t = Table(; x=x, y=y, xf32=Float32.(x), xf16=Float16.(x))
+    t = Table(; x, y)
     T = MinMax()
     n, c = apply(T, t)
-    for (c, CT) in zip([:x, :xf32, :xf16], [Float64, Float32, Float16])
-      @test Tables.getcolumn(n, c) == CT.(x) && Tables.columntype(n, c) == CT
-    end
+    @test n.x == x
     @test n.y != y
     tₒ = revert(T, n, c)
     @test Tables.matrix(t) ≈ Tables.matrix(tₒ)
@@ -992,6 +990,16 @@
     @test Tables.isrowtable(n)
     rtₒ = revert(T, n, c)
     @test Tables.matrix(rt) ≈ Tables.matrix(rtₒ)
+
+    # columntype does not change
+    for FT in (Float16, Float32)
+      t = Table(; x=rand(FT, 10))
+      T = MinMax()
+      n, c = apply(T, t)
+      @test Tables.columntype(t, :x) == Tables.columntype(n, :x)
+      tₒ = revert(T, n, c)
+      @test Tables.columntype(t, :x) == Tables.columntype(t, :x)
+    end
   end
 
   @testset "ZScore" begin
